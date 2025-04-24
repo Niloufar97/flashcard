@@ -16,7 +16,7 @@ namespace flashcard.Data
             // Ensure the relationship between Topic and Flashcards is correctly set
             modelBuilder.Entity<Topic>()
                 .HasMany(t => t.Flashcards)
-                .WithOne(f => f.Topic)
+                .WithOne(f=> f.Topic)
                 .HasForeignKey(f => f.TopicId);
 
             // Seed initial topic
