@@ -1,9 +1,10 @@
-﻿namespace flashcard.DTOs
+﻿using System.Text.Json.Serialization;
+
+namespace flashcard.DTOs
 {
-    public class FlashcardDTO
+    public class FlashcardDto
     {
-        public string EnglishWord { get; set; }
-        public string DanishWord { get; set; }
-        public string Topic { get; set; }
+        public string English { get; set; }
+        public string Danish { get; set; }
     }
 }

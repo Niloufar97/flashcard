@@ -1,7 +1,13 @@
 ﻿namespace flashcard.DTOs
 {
-    public class TopicDTO
+    public class TopicDto
     {
-        public string TopicName { get; set; }   
+        public TopicDto(string topic)
+        {
+            TopicName = topic;
+        }
+
+        public string TopicName { get; set; }
+        public FlashcardDto[] Flashcards { get; set; }
     }
 }
