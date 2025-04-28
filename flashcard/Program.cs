@@ -4,6 +4,7 @@ using flashcard.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Humanizer;
+using flashcard.Models;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -29,6 +30,18 @@ app.MapGet("/", () => "Hello World!");
 //    return Results.Ok(flashcards);
 //});
 
+app.MapGet("/topic", async(AppDbContext context) => { 
+    var topics = await context.Topics
+        .Include(f => f.Flashcards)
+        .Select(t => new TopicDto
+        {
+            TopicName = t.Name,
+            
+        })
+        .ToListAsync();
+
+    return Results.Ok(topics);
+});
 
 app.MapPost("/generate-flashcards" , async (flashcardGeneratorService generatorService, AppDbContext context, [FromBody] TopicRequestDto requestDto) =>
 {
