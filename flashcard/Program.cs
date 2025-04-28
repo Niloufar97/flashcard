@@ -1,9 +1,9 @@
 using flashcard.Data;
 using flashcard.DTOs;
 using flashcard.Services;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using OpenAI.Chat;
-using System.Data;
+using Humanizer;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -29,17 +29,27 @@ app.MapGet("/", () => "Hello World!");
 //    return Results.Ok(flashcards);
 //});
 
-app.MapGet("/generate-flashcards", async (flashcardGeneratorService generatorService) =>
+
+app.MapPost("/generate-flashcards" , async (flashcardGeneratorService generatorService, AppDbContext context, [FromBody] TopicRequestDto requestDto) =>
 {
-    // Use the hardcoded topic 'animals' for now
-    string topic = "animals";
+
+    //topic is required
+    if (string.IsNullOrEmpty(requestDto.TopicName))
+    {
+        return Results.BadRequest("Topic is required.");
+    }
+
+    // Check if the topic already exists in the database
+    var existingTopic = await context.Topics.FirstOrDefaultAsync(t => t.Name.ToLower() == requestDto.TopicName.ToLower());
+
+    if(existingTopic != null)
+    {
+        return Results.BadRequest("Topic already exists.");
+    }
 
     // Call the service to get flashcards (raw response from OpenAI)
-    var result = await generatorService.GetFlashcardsAsync(topic);
-
-    // Return the raw response as a simple text result (you could also return it as JSON)
+    var result = await generatorService.GetFlashcardsAsync(requestDto.TopicName);
     return Results.Ok(result);
 });
-
 
 app.Run();
