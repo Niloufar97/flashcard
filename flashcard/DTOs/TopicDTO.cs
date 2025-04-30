@@ -5,6 +5,5 @@
         public int Id { get; set; }
         public string TopicName { get; set; }
         public int FlashcardCount { get; set; }
-        public FlashcardDto[] Flashcards { get; set; }
     }
 }
