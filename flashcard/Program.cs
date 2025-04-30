@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Humanizer;
 using flashcard.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,7 +15,19 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddScoped<flashcardGeneratorService>();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowViteFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173") 
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
+
+app.UseCors("AllowViteFrontend");
 
 app.MapGet("/", () => "Hello World!");
 
@@ -32,15 +45,28 @@ app.MapGet("/", () => "Hello World!");
 
 app.MapGet("/topic", async(AppDbContext context) => { 
     var topics = await context.Topics
-        .Include(f => f.Flashcards)
         .Select(t => new TopicDto
         {
+            Id = t.TopicId,
             TopicName = t.Name,
-            
+            FlashcardCount = t.Flashcards.Count()  
         })
         .ToListAsync();
 
     return Results.Ok(topics);
+});
+
+app.MapGet("/topic/{id}/flashcards", async (AppDbContext context, int id) => {
+
+    var flashcards = await context.Flashcards
+                                  .Where(f => f.TopicId == id)
+                                  .Select(f => new FlashcardDto
+                                  {
+                                      English = f.EnglishWord,
+                                      Danish = f.DanishWord
+                                  })
+                                  .ToListAsync();
+    return Results.Ok(flashcards);
 });
 
 app.MapPost("/generate-flashcards" , async (flashcardGeneratorService generatorService, AppDbContext context, [FromBody] TopicRequestDto requestDto) =>
