@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -20,7 +19,7 @@ namespace flashcard.Migrations
                     TopicId = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Level = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -50,8 +49,8 @@ namespace flashcard.Migrations
 
             migrationBuilder.InsertData(
                 table: "Topics",
-                columns: new[] { "TopicId", "CreatedAt", "Name" },
-                values: new object[] { 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Food" });
+                columns: new[] { "TopicId", "Level", "Name" },
+                values: new object[] { 1, 1, "Food" });
 
             migrationBuilder.InsertData(
                 table: "Flashcards",

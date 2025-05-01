@@ -1,12 +1,9 @@
 ﻿using flashcard.Models;
 using flashcard.DTOs;
 using OpenAI.Chat;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System;
 using System.Text.Json;
 using flashcard.Data;
-using Microsoft.EntityFrameworkCore;
+using static flashcard.Models.Topic;
 
 
 namespace flashcard.Services
@@ -25,10 +22,10 @@ namespace flashcard.Services
             _dbContext = context;
         }
 
-        public async Task<GeneratedFlashcardsResponseDto> GetFlashcardsAsync(string topic)
+        public async Task<GeneratedFlashcardsResponseDto> GetFlashcardsAsync(string topic, DifficultyLevel level)
         {
             var prompt0 = "[mandetory] Give me only the raw JSON array of English and Danish flashcards. Do not include any explanation, formatting, or code block markdown. I want only the JSON output in this format {{\r\n    \"English\": \"cat\",\r\n    \"Danish\": \"kat\"\r\n  },\r\n  ...}";
-            var prompt1 = $"Generate 8 flashcards for the topic '{topic}', where each flashcard consists of an English word and its Danish translation.";
+            var prompt1 = $"Generate 8 flashcards for the topic '{topic}', where each flashcard consists of an English word and its Danish translation. The difficulty level should be {level.ToString().ToLower()} (e.g., easier words for 'easy', more complex or domain-specific vocabulary for 'hard').";
 
             // Send the prompt to OpenAI and get the response
             ChatCompletion completion = await _client.CompleteChatAsync([prompt0, prompt1]);
@@ -41,6 +38,7 @@ namespace flashcard.Services
             var topicEntity = new Topic
             {
                 Name = topic,
+                Level = level
             };
             _dbContext.Topics.Add(topicEntity);
             await _dbContext.SaveChangesAsync();

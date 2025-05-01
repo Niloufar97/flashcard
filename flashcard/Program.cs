@@ -49,6 +49,7 @@ app.MapGet("/topic", async(AppDbContext context) => {
         {
             Id = t.TopicId,
             TopicName = t.Name,
+            Level = t.Level,
             FlashcardCount = t.Flashcards.Count()  
         })
         .ToListAsync();
@@ -79,15 +80,17 @@ app.MapPost("/generate-flashcards" , async (flashcardGeneratorService generatorS
     }
 
     // Check if the topic already exists in the database
-    var existingTopic = await context.Topics.FirstOrDefaultAsync(t => t.Name.ToLower() == requestDto.TopicName.ToLower());
+    var exists = await context.Topics
+         .AnyAsync(t => t.Name.ToLower() == requestDto.TopicName.ToLower() && t.Level == requestDto.Level);
 
-    if(existingTopic != null)
+
+    if (exists)
     {
-        return Results.BadRequest("Topic already exists.");
+        return Results.BadRequest("Topic with the same name and level already exists.");
     }
 
     // Call the service to get flashcards (raw response from OpenAI)
-    var result = await generatorService.GetFlashcardsAsync(requestDto.TopicName);
+    var result = await generatorService.GetFlashcardsAsync(requestDto.TopicName, requestDto.Level);
     return Results.Ok(result);
 });
 
