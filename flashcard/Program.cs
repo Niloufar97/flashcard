@@ -6,7 +6,9 @@ using Microsoft.EntityFrameworkCore;
 using Humanizer;
 using flashcard.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
+using DotNetEnv; 
 
+Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 

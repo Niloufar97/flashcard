@@ -15,9 +15,9 @@ namespace flashcard.Services
         private readonly ChatClient _client;
         private readonly AppDbContext _dbContext;
 
-        public flashcardGeneratorService(IConfiguration config, AppDbContext context)
+        public flashcardGeneratorService( AppDbContext context)
         {
-            _apiKey = config["OpenAI:ApiKey"]!;
+            _apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY")!;
             _client = new ChatClient(model: "gpt-4", apiKey: _apiKey);
             _dbContext = context;
         }
