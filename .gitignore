@@ -363,3 +363,4 @@ MigrationBackup/
 FodyWeavers.xsd
 /flashcard/app.db-shm
 /flashcard/app.db-wal
+/flashcard/app.db
