@@ -6,5 +6,6 @@ namespace flashcard.DTOs
     {
         public string English { get; set; }
         public string Danish { get; set; }
+        public string IconUrl { get; set; }
     }
 }

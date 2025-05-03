@@ -6,8 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Humanizer;
 using flashcard.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
-using DotNetEnv; 
-
+using DotNetEnv;
 Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
@@ -52,6 +51,7 @@ app.MapGet("/topic", async(AppDbContext context) => {
             Id = t.TopicId,
             TopicName = t.Name,
             Level = t.Level,
+            IconUrl = t.IconUrl,
             FlashcardCount = t.Flashcards.Count()  
         })
         .ToListAsync();
@@ -95,5 +95,14 @@ app.MapPost("/generate-flashcards" , async (flashcardGeneratorService generatorS
     var result = await generatorService.GetFlashcardsAsync(requestDto.TopicName, requestDto.Level);
     return Results.Ok(result);
 });
+
+
+app.MapGet("/test-icon", async (flashcardGeneratorService generatorService) =>
+{
+    string testQuery = "";
+    var iconUrl = await generatorService.GetTestIconUrlAsync(testQuery);
+    return Results.Ok(new { iconUrl });
+});
+
 
 app.Run();

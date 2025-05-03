@@ -9,9 +9,8 @@
             Hard = 3
         }
         public int TopicId { get; set; }
-
-        public required string Name { get; set; } 
-
+        public string? Name { get; set; }
+        public string? IconUrl { get; set; }
         public DifficultyLevel Level { get; set; } = DifficultyLevel.Easy;
         public  List<Flashcard> Flashcards{ get; set; } = new List<Flashcard>();
 

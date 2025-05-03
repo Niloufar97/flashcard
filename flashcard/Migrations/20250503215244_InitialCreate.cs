@@ -2,8 +2,6 @@
 
 #nullable disable
 
-#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
-
 namespace flashcard.Migrations
 {
     /// <inheritdoc />
@@ -19,6 +17,7 @@ namespace flashcard.Migrations
                     TopicId = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
+                    IconUrl = table.Column<string>(type: "TEXT", nullable: true),
                     Level = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
@@ -34,7 +33,8 @@ namespace flashcard.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     TopicId = table.Column<int>(type: "INTEGER", nullable: false),
                     EnglishWord = table.Column<string>(type: "TEXT", nullable: false),
-                    DanishWord = table.Column<string>(type: "TEXT", nullable: false)
+                    DanishWord = table.Column<string>(type: "TEXT", nullable: false),
+                    IconUrl = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -45,28 +45,6 @@ namespace flashcard.Migrations
                         principalTable: "Topics",
                         principalColumn: "TopicId",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.InsertData(
-                table: "Topics",
-                columns: new[] { "TopicId", "Level", "Name" },
-                values: new object[] { 1, 1, "Food" });
-
-            migrationBuilder.InsertData(
-                table: "Flashcards",
-                columns: new[] { "Id", "DanishWord", "EnglishWord", "TopicId" },
-                values: new object[,]
-                {
-                    { 1, "brød", "bread", 1 },
-                    { 2, "ost", "cheese", 1 },
-                    { 3, "mælk", "milk", 1 },
-                    { 4, "æble", "apple", 1 },
-                    { 5, "banan", "banana", 1 },
-                    { 6, "kød", "meat", 1 },
-                    { 7, "fisk", "fish", 1 },
-                    { 8, "vand", "water", 1 },
-                    { 9, "salt", "salt", 1 },
-                    { 10, "smør", "butter", 1 }
                 });
 
             migrationBuilder.CreateIndex(

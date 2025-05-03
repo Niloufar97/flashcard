@@ -8,5 +8,6 @@ namespace flashcard.DTOs
         public string TopicName { get; set; }
         public DifficultyLevel Level { get; set; }
         public int FlashcardCount { get; set; }
+        public string IconUrl { get; set; }
     }
 }
