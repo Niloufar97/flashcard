@@ -7,6 +7,8 @@ using Humanizer;
 using flashcard.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using DotNetEnv;
+using Sprache;
+using MySqlX.XDevAPI.Common;
 Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
@@ -59,18 +61,34 @@ app.MapGet("/topic", async(AppDbContext context) => {
     return Results.Ok(topics);
 });
 
-app.MapGet("/topic/{id}/flashcards", async (AppDbContext context, int id) => {
-
+// Fix for CS0820, CS1513, CS1002, CS1026, and related issues
+app.MapGet("/topic/{id}/flashcards", async (AppDbContext context, int id) =>
+{
     var flashcards = await context.Flashcards
                                   .Where(f => f.TopicId == id)
                                   .Select(f => new FlashcardDto
                                   {
                                       English = f.EnglishWord,
-                                      Danish = f.DanishWord
+                                      Danish = f.DanishWord,
+                                      IconUrl = f.IconUrl
                                   })
                                   .ToListAsync();
-    return Results.Ok(flashcards);
+
+    var topic = await context.Topics
+                             .Where(t => t.TopicId == id)
+                             .Select(t => t.Name)
+                             .FirstOrDefaultAsync();
+
+    // Correctly initialize the result object
+    var result = new
+    {
+        topic = topic,
+        flashcards = flashcards
+    };
+
+    return Results.Ok(result);
 });
+
 
 app.MapPost("/generate-flashcards" , async (flashcardGeneratorService generatorService, AppDbContext context, [FromBody] TopicRequestDto requestDto) =>
 {
