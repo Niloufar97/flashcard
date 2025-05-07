@@ -3,12 +3,8 @@ using flashcard.DTOs;
 using flashcard.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Humanizer;
-using flashcard.Models;
-using Microsoft.AspNetCore.Http.HttpResults;
 using DotNetEnv;
-using Sprache;
-using MySqlX.XDevAPI.Common;
+using flashcard.Endpoints;
 Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
@@ -33,61 +29,7 @@ var app = builder.Build();
 app.UseCors("AllowViteFrontend");
 
 app.MapGet("/", () => "Hello World!");
-
-//app.MapGet("/flashcard", async (AppDbContext context) => { 
-//    var flashcards = await context.Flashcards
-//        .Select(f => new FlashcardDto
-//        {
-//            EnglishWord = f.EnglishWord,
-//            DanishWord = f.DanishWord,
-//        })
-//        .ToListAsync();
-
-//    return Results.Ok(flashcards);
-//});
-
-app.MapGet("/topic", async(AppDbContext context) => { 
-    var topics = await context.Topics
-        .Select(t => new TopicDto
-        {
-            Id = t.TopicId,
-            TopicName = t.Name,
-            Level = t.Level,
-            IconUrl = t.IconUrl,
-            FlashcardCount = t.Flashcards.Count()  
-        })
-        .ToListAsync();
-
-    return Results.Ok(topics);
-});
-
-// Fix for CS0820, CS1513, CS1002, CS1026, and related issues
-app.MapGet("/topic/{id}/flashcards", async (AppDbContext context, int id) =>
-{
-    var flashcards = await context.Flashcards
-                                  .Where(f => f.TopicId == id)
-                                  .Select(f => new FlashcardDto
-                                  {
-                                      English = f.EnglishWord,
-                                      Danish = f.DanishWord,
-                                      IconUrl = f.IconUrl
-                                  })
-                                  .ToListAsync();
-
-    var topic = await context.Topics
-                             .Where(t => t.TopicId == id)
-                             .Select(t => t.Name)
-                             .FirstOrDefaultAsync();
-
-    // Correctly initialize the result object
-    var result = new
-    {
-        topic = topic,
-        flashcards = flashcards
-    };
-
-    return Results.Ok(result);
-});
+app.MapTopicEndpoints();
 
 
 app.MapPost("/generate-flashcards" , async (flashcardGeneratorService generatorService, AppDbContext context, [FromBody] TopicRequestDto requestDto) =>
