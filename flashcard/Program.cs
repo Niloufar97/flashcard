@@ -32,37 +32,4 @@ app.MapGet("/", () => "Hello World!");
 app.MapTopicEndpoints();
 
 
-app.MapPost("/generate-flashcards" , async (flashcardGeneratorService generatorService, AppDbContext context, [FromBody] TopicRequestDto requestDto) =>
-{
-
-    //topic is required
-    if (string.IsNullOrEmpty(requestDto.TopicName))
-    {
-        return Results.BadRequest("Topic is required.");
-    }
-
-    // Check if the topic already exists in the database
-    var exists = await context.Topics
-         .AnyAsync(t => t.Name.ToLower() == requestDto.TopicName.ToLower() && t.Level == requestDto.Level);
-
-
-    if (exists)
-    {
-        return Results.BadRequest("Topic with the same name and level already exists.");
-    }
-
-    // Call the service to get flashcards (raw response from OpenAI)
-    var result = await generatorService.GetFlashcardsAsync(requestDto.TopicName, requestDto.Level);
-    return Results.Ok(result);
-});
-
-
-app.MapGet("/test-icon", async (flashcardGeneratorService generatorService) =>
-{
-    string testQuery = "";
-    var iconUrl = await generatorService.GetTestIconUrlAsync(testQuery);
-    return Results.Ok(new { iconUrl });
-});
-
-
 app.Run();

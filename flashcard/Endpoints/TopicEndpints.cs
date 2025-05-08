@@ -1,11 +1,17 @@
 ﻿using flashcard.Data;
 using flashcard.DTOs;
+using flashcard.Services;
+using Google.Protobuf.WellKnownTypes;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace flashcard.Endpoints
 {
-    public static class TopicEndpints
+    public static class TopicEndpoints
     {
+        private static object generatorService;
+
         public static void  MapTopicEndpoints(this IEndpointRouteBuilder app) {
             // Endpoint to get all topics
             app.MapGet("/topic", async (AppDbContext context) =>
@@ -28,10 +34,7 @@ namespace flashcard.Endpoints
             {
                var topic = await context.Topics
                                         .Where(t => t.TopicId == id)
-                                        .Select(t => new 
-                                        {
-                                            TopicName = t.Name,
-                                        })
+                                        .Select(t =>t.Name)
                                         .FirstOrDefaultAsync();
                 if (topic == null) return Results.NotFound();
                 var flashcards = await context.Flashcards
@@ -48,6 +51,22 @@ namespace flashcard.Endpoints
                     topic,
                     flashcards
                 };
+                return Results.Ok(result);
+            });
+
+            app.MapPost("topic/create", async (flashcardGeneratorService generator , AppDbContext context, [FromBody] TopicRequestDto requestDto) => { 
+                if(string.IsNullOrEmpty(requestDto.TopicName))
+                    return Results.BadRequest("Topic is required");
+
+                var exists = await context.Topics
+                                          .AnyAsync(t => t.Name.ToLower() == requestDto.TopicName.ToLower() && t.Level == requestDto.Level);
+
+                if (exists)
+                {
+                    return Results.BadRequest("Topic with the same name and level already exists.");
+                }
+
+                var result = await generator.GetFlashcardsAsync(requestDto.TopicName, requestDto.Level);
                 return Results.Ok(result);
             });
         }

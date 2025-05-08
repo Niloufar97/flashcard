@@ -108,45 +108,6 @@ namespace flashcard.Services
             var result = new GeneratedFlashcardsResponseDto() { TopicName = topic, Flashcards = GeneratedFlashcards };
             return result;
         }
-
-
-        public async Task<string?> GetTestIconUrlAsync(string query)
-        {
-            var iconfinderApiKey = Environment.GetEnvironmentVariable("ICONFINDER_API_KEY");
-            using var httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {iconfinderApiKey}");
-
-            var response = await httpClient.GetAsync($"https://api.iconfinder.com/v4/icons/search?query={Uri.EscapeDataString(query)}&count=1&premium=0&vector=0");
-
-            if (!response.IsSuccessStatusCode)
-                return null;
-
-            var json = await response.Content.ReadAsStringAsync();
-            using var doc = JsonDocument.Parse(json);
-
-            try
-            {
-                var icon = doc.RootElement.GetProperty("icons")[0];
-
-                // Get raster_sizes closest to 128px
-                var rasterSizes = icon.GetProperty("raster_sizes").EnumerateArray();
-                var size128 = rasterSizes.FirstOrDefault(s => s.GetProperty("size").GetInt32() == 512);
-                if (size128.ValueKind == JsonValueKind.Undefined)
-                    size128 = icon.GetProperty("raster_sizes")[0]; // fallback
-
-                var previewUrl = size128
-                    .GetProperty("formats")[0]
-                    .GetProperty("preview_url")
-                    .GetString();
-
-                return previewUrl;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Failed to parse icon JSON: " + ex.Message);
-                return null;
-            }
-        }
     }
 }
 
