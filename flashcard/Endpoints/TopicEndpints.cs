@@ -1,8 +1,6 @@
 ﻿using flashcard.Data;
 using flashcard.DTOs;
 using flashcard.Services;
-using Google.Protobuf.WellKnownTypes;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,8 +8,6 @@ namespace flashcard.Endpoints
 {
     public static class TopicEndpoints
     {
-        private static object generatorService;
-
         public static void  MapTopicEndpoints(this IEndpointRouteBuilder app) {
             // Endpoint to get all topics
             app.MapGet("/topic", async (AppDbContext context) =>
@@ -68,6 +64,17 @@ namespace flashcard.Endpoints
 
                 var result = await generator.GetFlashcardsAsync(requestDto.TopicName, requestDto.Level);
                 return Results.Ok(result);
+            });
+
+            app.MapDelete("topic/{id}", async (AppDbContext context, int id) => {
+               var deletedCount = await context.Topics
+                             .Where(t => t.TopicId == id)
+                             .ExecuteDeleteAsync();
+
+                return deletedCount > 0
+                    ? Results.Ok($"Topic with ID {id} deleted successfully.")
+                    : Results.NoContent();
+
             });
         }
     }
