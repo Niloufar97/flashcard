@@ -4,8 +4,8 @@ namespace flashcard.DTOs
 {
     public class FlashcardDto
     {
-        public string English { get; set; }
-        public string Danish { get; set; }
-        public string IconUrl { get; set; }
+        public required string English { get; set; }
+        public required string Danish { get; set; }
+        public required string IconUrl { get; set; }
     }
 }

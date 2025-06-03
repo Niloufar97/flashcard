@@ -30,6 +30,6 @@ app.UseCors("AllowViteFrontend");
 
 app.MapGet("/", () => "Hello World!");
 app.MapTopicEndpoints();
-
+app.MapFlashcardEndpoints();
 
 app.Run();
